@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0d1117" />
+<title>OutLate — V0.2 Prototype</title>
+<style>
+  :root{
+    --bg:#eef2f5;
+    --card:#ffffff;
+    --ink:#0f1419;
+    --muted:#6b7280;
+    --line:#e3e8ee;
+    --dark:#0d1117;
+    --good:#176b45;
+    --goodbg:#eaf7ef;
+    --warn:#9a6417;
+    --warnbg:#fff6de;
+    --bad:#a7302b;
+    --badbg:#fdeceb;
+    --blue:#315fcb;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    background:
+      radial-gradient(circle at top right, rgba(49,95,203,.08), transparent 32%),
+      var(--bg);
+    color:var(--ink);
+  }
+  .shell{max-width:780px;margin:0 auto;padding:20px 14px 54px}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:8px 2px 22px;
+  }
+  .logo{font-size:24px;font-weight:950;letter-spacing:-1.3px}
+  .badge{
+    font-size:11px;font-weight:800;letter-spacing:.4px;
+    background:#dfe7f7;color:#294eaa;padding:7px 9px;border-radius:999px;
+  }
+  .hero{padding:8px 2px 18px}
+  h1{font-size:42px;line-height:1.01;letter-spacing:-2px;margin:0 0 11px;max-width:650px}
+  .lede{font-size:17px;line-height:1.5;color:var(--muted);max-width:630px}
+  .card{
+    background:rgba(255,255,255,.96);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:20px;
+    margin-bottom:15px;
+    box-shadow:0 10px 35px rgba(15,20,25,.045);
+  }
+  .section-title{font-size:13px;font-weight:900;letter-spacing:.65px;text-transform:uppercase;color:#505866;margin-bottom:12px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .full{grid-column:1/-1}
+  label{display:block;font-size:13px;font-weight:780;margin:0 0 7px}
+  select,input{
+    width:100%;border:1px solid #ccd3dc;border-radius:13px;
+    padding:13px 14px;background:#fff;color:var(--ink);
+    font-size:16px;outline:none;
+  }
+  select:focus,input:focus{border-color:#8797b3;box-shadow:0 0 0 3px rgba(49,95,203,.08)}
+  .toggle-row{
+    display:flex;align-items:center;justify-content:space-between;gap:18px;
+    padding:12px 0;border-top:1px solid var(--line);
+  }
+  .toggle-row:first-child{border-top:none;padding-top:0}
+  .toggle-copy strong{display:block;font-size:14px}
+  .toggle-copy span{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+  .switch{position:relative;width:50px;height:30px;flex:0 0 auto}
+  .switch input{opacity:0;width:0;height:0}
+  .slider{
+    position:absolute;inset:0;background:#cbd2da;border-radius:999px;cursor:pointer;transition:.2s
+  }
+  .slider:before{
+    content:"";position:absolute;width:24px;height:24px;left:3px;top:3px;
+    background:white;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,.18);transition:.2s
+  }
+  .switch input:checked + .slider{background:#111827}
+  .switch input:checked + .slider:before{transform:translateX(20px)}
+  .cta{
+    width:100%;border:0;border-radius:15px;padding:16px 18px;margin-top:4px;
+    background:var(--dark);color:white;font-size:16px;font-weight:880;cursor:pointer;
+  }
+  .cta:hover{opacity:.94}
+  .micro{font-size:12px;color:var(--muted);line-height:1.45;margin-top:10px}
+  .result{display:none;padding:0;overflow:hidden}
+  .result-head{padding:22px 20px 18px}
+  .status{
+    display:inline-flex;align-items:center;gap:7px;
+    border-radius:999px;padding:8px 10px;
+    font-size:11px;font-weight:900;letter-spacing:.55px;margin-bottom:12px;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+  .good{background:var(--goodbg);color:var(--good)}
+  .warn{background:var(--warnbg);color:var(--warn)}
+  .bad{background:var(--badbg);color:var(--bad)}
+  .result h2{font-size:34px;line-height:1.03;letter-spacing:-1.3px;margin:0 0 7px}
+  .route{color:var(--muted);font-size:15px}
+  .score-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    background:#fafbfc;
+  }
+  .score{
+    padding:15px 12px;text-align:center;border-right:1px solid var(--line)
+  }
+  .score:last-child{border-right:none}
+  .score small{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:800;letter-spacing:.5px;margin-bottom:4px}
+  .score strong{font-size:21px;letter-spacing:-.5px}
+  .timeline{padding:18px 20px}
+  .step{
+    display:grid;grid-template-columns:18px 1fr auto;gap:10px;
+    align-items:start;position:relative;padding:0 0 18px
+  }
+  .step:last-child{padding-bottom:0}
+  .rail{
+    width:10px;height:10px;border-radius:50%;background:#111827;margin-top:5px;position:relative;z-index:2
+  }
+  .step:not(:last-child) .rail:after{
+    content:"";position:absolute;width:2px;background:#d7dde5;height:calc(100% + 18px);left:4px;top:10px
+  }
+  .step-main strong{display:block;font-size:14px}
+  .step-main span{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+  .time{font-size:14px;font-weight:850;white-space:nowrap}
+  .advice{
+    margin:0 20px 20px;padding:16px;border-radius:16px;background:#f4f7fb;
+    border:1px solid #dde5ef;font-size:14px;line-height:1.48
+  }
+  .leave{
+    display:flex;justify-content:space-between;align-items:center;gap:15px;
+    margin:0 20px 20px;padding:16px;border-radius:16px;background:#111827;color:white
+  }
+  .leave small{display:block;opacity:.72;font-size:11px;text-transform:uppercase;font-weight:800;letter-spacing:.55px}
+  .leave strong{display:block;font-size:28px;margin-top:2px;letter-spacing:-.7px}
+  .leave .emoji{font-size:28px}
+  .examples{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .chip{
+    border:1px solid var(--line);background:#f8fafc;border-radius:999px;
+    padding:8px 10px;font-size:12px;font-weight:700;cursor:pointer;
+  }
+  .footer{text-align:center;color:var(--muted);font-size:11px;line-height:1.5;padding:12px 8px}
+  .hidden{display:none}
+  @media(max-width:620px){
+    h1{font-size:36px}
+    .grid{grid-template-columns:1fr}
+    .full{grid-column:auto}
+    .score strong{font-size:18px}
+    .score{padding:13px 7px}
+    .result h2{font-size:30px}
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar">
+    <div class="logo">OUTLATE</div>
+    <div class="badge">V0.2 PROTOTYPE</div>
+  </div>
+
+  <div class="hero">
+    <h1>Know if you'll actually get home.</h1>
+    <div class="lede">Going to a gig, match or show? OutLate estimates whether you'll make your last useful train — and how much margin you have.</div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">Your night</div>
+    <div class="grid">
+      <div class="full">
+        <label for="venue">Venue</label>
+        <select id="venue">
+          <option value="wembley_stadium">Wembley Stadium</option>
+          <option value="o2">The O2</option>
+          <option value="wembley_arena">OVO Arena Wembley</option>
+          <option value="allypally">Alexandra Palace</option>
+          <option value="roundhouse">Roundhouse</option>
+          <option value="brixton">O2 Academy Brixton</option>
+          <option value="eventim">Eventim Apollo</option>
+          <option value="troxy">Troxy</option>
+          <option value="electric_ballroom">Electric Ballroom</option>
+          <option value="village_underground">Village Underground</option>
+          <option value="union_chapel">Union Chapel</option>
+          <option value="emirates">Emirates Stadium</option>
+          <option value="tottenham">Tottenham Hotspur Stadium</option>
+          <option value="london_stadium">London Stadium</option>
+          <option value="royal_albert">Royal Albert Hall</option>
+        </select>
+      </div>
+
+      <div class="full">
+        <label for="home">Home station</label>
+        <input id="home" list="stations" placeholder="Start typing, e.g. Earlsfield" value="Earlsfield" />
+        <datalist id="stations">
+          <option>Earlsfield</option><option>Wimbledon</option><option>Clapham Junction</option>
+          <option>Richmond</option><option>Kingston</option><option>Surbiton</option>
+          <option>Guildford</option><option>Woking</option><option>Reading</option>
+          <option>Brighton</option><option>East Croydon</option><option>Orpington</option>
+          <option>Bromley South</option><option>Sevenoaks</option><option>St Albans City</option>
+          <option>Watford Junction</option><option>Harrow & Wealdstone</option><option>Ealing Broadway</option>
+          <option>Acton Main Line</option><option>Shepherd's Bush</option><option>Putney</option>
+          <option>Balham</option><option>Tooting</option><option>Streatham</option>
+          <option>Norwood Junction</option><option>Beckenham Junction</option><option>Greenwich</option>
+          <option>Lewisham</option><option>Blackheath</option><option>Woolwich</option>
+          <option>Ilford</option><option>Romford</option><option>Shenfield</option>
+          <option>Enfield Town</option><option>Chingford</option><option>High Barnet</option>
+          <option>Hertford North</option><option>Stevenage</option><option>Luton</option>
+          <option>Bedford</option>
+        </datalist>
+      </div>
+
+      <div>
+        <label for="finish">Expected finish</label>
+        <input id="finish" type="time" value="22:30" />
+      </div>
+
+      <div>
+        <label for="crowd">Crowd assumption</label>
+        <select id="crowd">
+          <option value="standard">Standard</option>
+          <option value="busy" selected>Busy</option>
+          <option value="cautious">Very cautious</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:18px">
+      <div class="toggle-row">
+        <div class="toggle-copy">
+          <strong>Stay for the encore / final whistle</strong>
+          <span>Otherwise OutLate assumes you leave 10 minutes early.</span>
+        </div>
+        <label class="switch">
+          <input id="stay" type="checkbox" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-copy">
+          <strong>Add a safety margin</strong>
+          <span>Protects against a slow exit or slightly late-running journey.</span>
+        </div>
+        <label class="switch">
+          <input id="safety" type="checkbox" checked />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <button class="cta" id="check">Check if I'll make it</button>
+
+    <div class="examples">
+      <div class="chip" onclick="preset('wembley_stadium','Earlsfield','22:30')">Wembley → Earlsfield</div>
+      <div class="chip" onclick="preset('o2','Guildford','22:45')">O2 → Guildford</div>
+      <div class="chip" onclick="preset('allypally','Brighton','23:00')">Ally Pally → Brighton</div>
+    </div>
+
+    <div class="micro">Prototype note: venues are real, but this version deliberately uses illustrative timetable assumptions rather than live TfL/National Rail data.</div>
+  </div>
+
+  <div class="card result" id="result">
+    <div class="result-head">
+      <div id="status" class="status good"><span class="dot"></span><span>LIKELY</span></div>
+      <h2 id="headline">You should make it.</h2>
+      <div class="route" id="route"></div>
+    </div>
+
+    <div class="score-grid">
+      <div class="score">
+        <small>Buffer</small>
+        <strong id="buffer">24 min</strong>
+      </div>
+      <div class="score">
+        <small>Confidence</small>
+        <strong id="confidence">84%</strong>
+      </div>
+      <div class="score">
+        <small>Home by</small>
+        <strong id="homeBy">00:12</strong>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="section-title">Estimated journey</div>
+
+      <div class="step">
+        <div class="rail"></div>
+        <div class="step-main"><strong>Event finishes</strong><span id="venueName1"></span></div>
+        <div class="time" id="tFinish"></div>
+      </div>
+
+      <div class="step">
+        <div class="rail"></div>
+        <div class="step-main"><strong>Clear the venue</strong><span>Exit + crowd allowance</span></div>
+        <div class="time" id="tExit"></div>
+      </div>
+
+      <div class="step">
+        <div class="rail"></div>
+        <div class="step-main"><strong>Reach useful transport</strong><span id="transportNote">Walk / queue allowance</span></div>
+        <div class="time" id="tStation"></div>
+      </div>
+
+      <div class="step">
+        <div class="rail"></div>
+        <div class="step-main"><strong>Last useful departure</strong><span>Prototype timetable assumption</span></div>
+        <div class="time" id="tLast"></div>
+      </div>
+
+      <div class="step">
+        <div class="rail"></div>
+        <div class="step-main"><strong>Estimated home arrival</strong><span id="homeName"></span></div>
+        <div class="time" id="tHome"></div>
+      </div>
+    </div>
+
+    <div class="leave">
+      <div>
+        <small>Latest sensible venue exit</small>
+        <strong id="leaveBy">22:48</strong>
+      </div>
+      <div class="emoji" id="leaveEmoji">⏱️</div>
+    </div>
+
+    <div class="advice" id="advice"></div>
+  </div>
+
+  <div class="footer">
+    OUTLATE V0.2 · Concept prototype only · Not for real journey planning yet
+  </div>
+</div>
+
+<script>
+const venues = {
+  wembley_stadium:{name:"Wembley Stadium", exit:18, toTransport:16, crowd:12, baseTrip:44, last:"23:42"},
+  o2:{name:"The O2", exit:12, toTransport:9, crowd:7, baseTrip:39, last:"00:02"},
+  wembley_arena:{name:"OVO Arena Wembley", exit:11, toTransport:12, crowd:8, baseTrip:43, last:"23:46"},
+  allypally:{name:"Alexandra Palace", exit:16, toTransport:17, crowd:10, baseTrip:50, last:"23:48"},
+  roundhouse:{name:"Roundhouse", exit:9, toTransport:8, crowd:5, baseTrip:36, last:"00:08"},
+  brixton:{name:"O2 Academy Brixton", exit:10, toTransport:7, crowd:6, baseTrip:31, last:"00:05"},
+  eventim:{name:"Eventim Apollo", exit:10, toTransport:8, crowd:5, baseTrip:28, last:"00:10"},
+  troxy:{name:"Troxy", exit:8, toTransport:7, crowd:4, baseTrip:38, last:"23:58"},
+  electric_ballroom:{name:"Electric Ballroom", exit:7, toTransport:6, crowd:4, baseTrip:35, last:"00:12"},
+  village_underground:{name:"Village Underground", exit:7, toTransport:6, crowd:4, baseTrip:37, last:"00:15"},
+  union_chapel:{name:"Union Chapel", exit:6, toTransport:7, crowd:3, baseTrip:40, last:"00:02"},
+  emirates:{name:"Emirates Stadium", exit:15, toTransport:13, crowd:11, baseTrip:44, last:"23:55"},
+  tottenham:{name:"Tottenham Hotspur Stadium", exit:17, toTransport:15, crowd:12, baseTrip:54, last:"23:38"},
+  london_stadium:{name:"London Stadium", exit:16, toTransport:16, crowd:11, baseTrip:48, last:"23:50"},
+  royal_albert:{name:"Royal Albert Hall", exit:9, toTransport:10, crowd:5, baseTrip:29, last:"00:10"}
+};
+
+const stationProfiles = {
+  "Earlsfield":{adj:0,lastAdj:0},
+  "Wimbledon":{adj:4,lastAdj:5},
+  "Clapham Junction":{adj:-8,lastAdj:12},
+  "Richmond":{adj:1,lastAdj:20},
+  "Kingston":{adj:12,lastAdj:-2},
+  "Surbiton":{adj:15,lastAdj:-3},
+  "Guildford":{adj:28,lastAdj:-5},
+  "Woking":{adj:22,lastAdj:-2},
+  "Reading":{adj:38,lastAdj:-8},
+  "Brighton":{adj:58,lastAdj:-18},
+  "East Croydon":{adj:10,lastAdj:6},
+  "Orpington":{adj:28,lastAdj:-8},
+  "Bromley South":{adj:22,lastAdj:-5},
+  "Sevenoaks":{adj:35,lastAdj:-10},
+  "St Albans City":{adj:30,lastAdj:-5},
+  "Watford Junction":{adj:25,lastAdj:-4},
+  "Harrow & Wealdstone":{adj:16,lastAdj:2},
+  "Ealing Broadway":{adj:7,lastAdj:8},
+  "Acton Main Line":{adj:8,lastAdj:4},
+  "Shepherd's Bush":{adj:-4,lastAdj:15},
+  "Putney":{adj:-1,lastAdj:10},
+  "Balham":{adj:-3,lastAdj:12},
+  "Tooting":{adj:6,lastAdj:5},
+  "Streatham":{adj:8,lastAdj:6},
+  "Norwood Junction":{adj:11,lastAdj:4},
+  "Beckenham Junction":{adj:18,lastAdj:-2},
+  "Greenwich":{adj:9,lastAdj:8},
+  "Lewisham":{adj:12,lastAdj:6},
+  "Blackheath":{adj:15,lastAdj:2},
+  "Woolwich":{adj:20,lastAdj:0},
+  "Ilford":{adj:18,lastAdj:0},
+  "Romford":{adj:27,lastAdj:-5},
+  "Shenfield":{adj:38,lastAdj:-10},
+  "Enfield Town":{adj:23,lastAdj:-3},
+  "Chingford":{adj:26,lastAdj:-8},
+  "High Barnet":{adj:25,lastAdj:-2},
+  "Hertford North":{adj:42,lastAdj:-12},
+  "Stevenage":{adj:44,lastAdj:-12},
+  "Luton":{adj:46,lastAdj:-15},
+  "Bedford":{adj:61,lastAdj:-20}
+};
+
+function tmin(t){
+  const [h,m]=t.split(":").map(Number);
+  return h*60+m;
+}
+function fmt(n){
+  n=((n%1440)+1440)%1440;
+  return String(Math.floor(n/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");
+}
+function afterMidnightAdjust(n, ref){
+  while(n < ref-180) n += 1440;
+  return n;
+}
+function signedBuffer(last, arrival){
+  last=afterMidnightAdjust(last,arrival);
+  return last-arrival;
+}
+function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
+function normalizeStation(raw){
+  const names=Object.keys(stationProfiles);
+  const exact=names.find(n=>n.toLowerCase()===raw.trim().toLowerCase());
+  return exact || null;
+}
+
+function preset(v,h,f){
+  document.getElementById("venue").value=v;
+  document.getElementById("home").value=h;
+  document.getElementById("finish").value=f;
+  calculate();
+}
+
+function calculate(){
+  const v=venues[document.getElementById("venue").value];
+  const stationName=normalizeStation(document.getElementById("home").value);
+  if(!stationName){
+    alert("For this prototype, please choose one of the suggested stations.");
+    return;
+  }
+  const s=stationProfiles[stationName];
+  const finishRaw=document.getElementById("finish").value || "22:30";
+  const crowdMode=document.getElementById("crowd").value;
+  const stay=document.getElementById("stay").checked;
+  const safety=document.getElementById("safety").checked;
+
+  const crowdExtra = crowdMode==="busy" ? 7 : crowdMode==="cautious" ? 14 : 0;
+  const leaveEarly = stay ? 0 : -10;
+  const safetyMargin = safety ? 8 : 0;
+
+  const finish=tmin(finishRaw)+leaveEarly;
+  const exit=finish+v.exit+crowdExtra;
+  const transport=exit+v.toTransport+v.crowd;
+  const trip=Math.max(18,v.baseTrip+s.adj);
+  let last=tmin(v.last)+s.lastAdj;
+  last=afterMidnightAdjust(last,transport);
+  const buffer=last-transport-safetyMargin;
+  const home=transport+trip;
+
+  const uncertainty=12 + Math.round((v.exit+v.crowd)/5) + (crowdMode==="cautious"?5:0);
+  let confidence=Math.round(50 + buffer*1.45 - uncertainty*.5);
+  confidence=clamp(confidence,8,97);
+
+  let state,cls,headline,advice,emoji;
+  if(buffer>=20){
+    state="LIKELY"; cls="status good"; headline="You should make it.";
+    advice=`You have a healthy estimated margin. Even with the ${safety ? "extra safety allowance included" : "prototype assumptions"}, OutLate gives this journey a good chance of working.`;
+    emoji="✅";
+  }else if(buffer>=5){
+    state="TIGHT"; cls="status warn"; headline="Probably — but don't dawdle.";
+    advice=`Your margin is thin. A slow venue exit, queueing or disruption could wipe it out. This is exactly the kind of journey where the eventual live version should warn you during the event.`;
+    emoji="⚠️";
+  }else{
+    state="UNLIKELY"; cls="status bad"; headline="I wouldn't rely on it.";
+    advice=`The estimated connection is too tight. A real version could now suggest leaving early, using a different station, taking a coach, or staying nearby.`;
+    emoji="🛑";
+  }
+
+  const latestTransport=last-safetyMargin;
+  const latestVenueExit=latestTransport-(v.toTransport+v.crowd+crowdExtra);
+  const displayFinish=finish;
+  const displayLast=last;
+
+  document.getElementById("status").className=cls;
+  document.getElementById("status").innerHTML=`<span class="dot"></span><span>${state}</span>`;
+  document.getElementById("headline").textContent=headline;
+  document.getElementById("route").textContent=`${v.name} → ${stationName}`;
+  document.getElementById("buffer").textContent=buffer>=0?`${buffer} min`:`${Math.abs(buffer)} min late`;
+  document.getElementById("confidence").textContent=`${confidence}%`;
+  document.getElementById("homeBy").textContent=fmt(home);
+  document.getElementById("venueName1").textContent=v.name;
+  document.getElementById("tFinish").textContent=fmt(displayFinish);
+  document.getElementById("tExit").textContent=fmt(exit);
+  document.getElementById("tStation").textContent=fmt(transport);
+  document.getElementById("tLast").textContent=fmt(displayLast);
+  document.getElementById("homeName").textContent=stationName;
+  document.getElementById("tHome").textContent=fmt(home);
+  document.getElementById("leaveBy").textContent=fmt(latestVenueExit);
+  document.getElementById("leaveEmoji").textContent=emoji;
+  document.getElementById("advice").textContent=advice;
+  document.getElementById("result").style.display="block";
+  document.getElementById("result").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+document.getElementById("check").addEventListener("click",calculate);
+</script>
+</body>
+</html>
