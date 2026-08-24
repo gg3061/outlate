@@ -1,38 +1,16 @@
-# OutLate — GitHub-ready beta
+# OutLate — streamlined beta
 
-Files you need in the repository root:
+Main flow:
+1. Venue
+2. Home station
+3. CAN I STAY?
 
-- `index.html`
-- `_worker.js`
-- `README.md`
+Only if needed, OutLate asks for:
+- venue scale (unknown venues only)
+- expected finish / curfew (if not known)
+- last useful departure + journey time (until live transport is integrated)
 
-## Why Cloudflare Pages rather than GitHub Pages?
-`index.html` is static, but the setlist.fm API key must remain secret and setlist.fm does not permit frontend/browser API calls. `_worker.js` is the tiny server-side layer that safely calls setlist.fm.
+Known venues automatically set venue scale, and a small number have conservative curfew fallbacks.
+Unknown UK venues still work via inferred/default venue scale.
 
-GitHub remains the source of truth. Cloudflare Pages connects to the GitHub repo and automatically deploys each change.
-
-## Cloudflare setup
-- Production branch: `main`
-- Build command: `exit 0`
-- Build output directory: `.`
-- Secret name: `SETLIST_FM_API_KEY`
-
-Do not commit the API key to GitHub.
-
-## Current live features
-- setlist.fm artist lookup
-- up to 20 recent setlists requested
-- up to 12 complete setlists analysed in-browser
-- encore frequency
-- typical encore song count
-- estimated encore time (OutLate estimate, not setlist.fm runtime)
-- common final main-set song before the encore
-- spoiler-aware exit cue
-- stay-to-end / skip-encore / leave-early comparisons
-
-## Still manual
-- Expected finish
-- Last useful departure
-- Journey time after boarding
-
-Before monetising the product, contact setlist.fm about commercial API permission.
+Next major product milestone: automatic live public-transport lookup, which removes the final manual journey inputs.
