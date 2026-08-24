@@ -28,7 +28,8 @@
   --bad:#ff8278;
   --bad-bg:#2d1514;
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box;min-width:0}
+html,body{max-width:100%;overflow-x:hidden}
 html{scroll-behavior:smooth}
 body{
   margin:0;
@@ -39,7 +40,7 @@ body{
     linear-gradient(180deg,#090c0a 0%,#0b0f0c 100%);
   font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
-button,input,select{font:inherit}
+button,input,select{font:inherit;max-width:100%}
 button{touch-action:manipulation}
 .page{
   width:min(760px,100%);
@@ -53,11 +54,49 @@ header{
   gap:14px;
   padding:4px 2px 28px;
 }
+.brand-lockup{
+  position:relative;
+  display:inline-flex;
+  flex-direction:column;
+  width:136px;
+  padding-bottom:10px;
+  flex:0 0 auto;
+}
 .brand{
   font:700 25px/1 "Space Grotesk",sans-serif;
   letter-spacing:-1.5px;
+  white-space:nowrap;
 }
-.brand span{color:var(--lime);font-size:1.18em}
+.route-logo{
+  position:absolute;
+  left:1px;
+  right:1px;
+  bottom:0;
+  height:8px;
+}
+.route-logo:before{
+  content:"";
+  position:absolute;
+  left:4px;
+  right:4px;
+  top:3px;
+  height:2px;
+  background:var(--lime);
+  border-radius:999px;
+}
+.route-stop{
+  position:absolute;
+  top:0;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--bg);
+  border:2px solid var(--lime);
+  z-index:2;
+}
+.route-stop.start{left:0}
+.route-stop.mid{left:50%;transform:translateX(-50%)}
+.route-stop.end{right:0}
 .beta{
   font:600 9.5px/1 "IBM Plex Mono",monospace;
   color:var(--lime-soft);
@@ -91,6 +130,26 @@ h1{
   max-width:560px;
   margin:16px 0 0;
 }
+.smart-strip{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:15px;
+}
+.smart-chip{
+  display:inline-flex;
+  align-items:center;
+  border:1px solid #2b352d;
+  background:#0e140f;
+  color:#aeb7b0;
+  border-radius:999px;
+  padding:7px 9px;
+  font-size:10.5px;
+  line-height:1;
+  white-space:nowrap;
+}
+.smart-chip b{color:var(--lime-soft);font-weight:600}
+
 .search-card{
   background:rgba(17,22,18,.96);
   border:1px solid var(--line);
@@ -108,8 +167,10 @@ label{
   margin:0 0 7px;
 }
 input,select{
+  display:block;
   width:100%;
-  min-width:0;
+  min-width:0 !important;
+  max-width:100% !important;
   border:1px solid #313b33;
   border-radius:14px;
   background:#0b100c;
@@ -117,6 +178,11 @@ input,select{
   padding:14px 15px;
   font-size:16px;
   outline:none;
+}
+input[type="time"],input[type="number"]{
+  width:100% !important;
+  min-width:0 !important;
+  -webkit-min-logical-width:0;
 }
 input::placeholder{color:#657067}
 input:focus,select:focus{
@@ -143,6 +209,19 @@ input:focus,select:focus{
   font-size:10.5px;
   line-height:1.4;
 }
+.venue-readout{
+  display:none;
+  width:100%;
+  margin-top:8px;
+  padding:10px 11px;
+  border-radius:12px;
+  background:#0d120e;
+  border:1px solid #28322a;
+  color:#abb4ad;
+  font-size:11px;
+  line-height:1.4;
+}
+.venue-readout strong{color:var(--ink)}
 .secondary-panel{
   display:none;
   margin-top:14px;
@@ -331,8 +410,17 @@ footer{
   padding:18px 6px 0;
 }
 @media(max-width:620px){
+  .page{padding-left:12px;padding-right:12px}
+  .search-card{padding:16px}
   .segmented{grid-template-columns:1fr 1fr}
-  .metric strong{font-size:15.5px}
+  .metric{padding-left:3px;padding-right:3px}
+  .metric strong{font-size:14px}
+  .smart-chip{font-size:10px}
+}
+@media(max-width:360px){
+  .metrics{grid-template-columns:1fr}
+  .metric{border-right:0;border-bottom:1px solid var(--line)}
+  .metric:last-child{border-bottom:0}
 }
 </style>
 </head>
@@ -341,7 +429,14 @@ footer{
 <div class="page">
 
 <header>
-  <div class="brand">OUTLATE<span>•</span></div>
+  <div class="brand-lockup" aria-label="OutLate">
+    <div class="brand">OUTLATE</div>
+    <div class="route-logo" aria-hidden="true">
+      <span class="route-stop start"></span>
+      <span class="route-stop mid"></span>
+      <span class="route-stop end"></span>
+    </div>
+  </div>
   <div class="beta">BETA</div>
 </header>
 
@@ -349,6 +444,12 @@ footer{
   <div class="kicker">Last-train decision tool</div>
   <h1>Can I stay?</h1>
   <p>Tell OutLate where you are and where you're going. It estimates whether you can stay to the end — or exactly when you should leave.</p>
+
+  <div class="smart-strip" aria-label="What OutLate considers">
+    <span class="smart-chip"><b>Curfew-aware</b></span>
+    <span class="smart-chip">Venue-size adjusted</span>
+    <span class="smart-chip">Built-in safety margin</span>
+  </div>
 </section>
 
 <section class="search-card">
@@ -384,6 +485,7 @@ footer{
       <option value="The Leadmill">
       <option value="Boileroom">
     </datalist>
+    <div id="venueReadout" class="venue-readout"></div>
   </div>
 
   <div class="field">
@@ -592,6 +694,32 @@ function prepQuestions(){
   $("needMore").scrollIntoView({behavior:"smooth",block:"nearest"});
   return true;
 }
+
+
+function updateVenueReadout(){
+  const name=$("venue").value.trim();
+  const box=$("venueReadout");
+  if(!name){
+    box.style.display="none";
+    return;
+  }
+
+  const known=knownVenues[name.toLowerCase()]||null;
+  if(known){
+    const p=sizeProfiles[known.size];
+    box.style.display="block";
+    box.innerHTML=known.curfew
+      ? `<strong>${p.label}</strong> · venue profile recognised · likely curfew ${known.curfew}`
+      : `<strong>${p.label}</strong> · venue profile recognised`;
+  }else{
+    const guessed=inferUnknownSize(name);
+    box.style.display="block";
+    box.innerHTML=`New venue · provisionally treating it as a <strong>${sizeProfiles[guessed].label.toLowerCase()}</strong>`;
+  }
+}
+
+$("venue").addEventListener("change",updateVenueReadout);
+$("venue").addEventListener("blur",updateVenueReadout);
 
 $("check").addEventListener("click",prepQuestions);
 

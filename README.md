@@ -1,16 +1,9 @@
-# OutLate — streamlined beta
+# OutLate V5
 
-Main flow:
-1. Venue
-2. Home station
-3. CAN I STAY?
-
-Only if needed, OutLate asks for:
-- venue scale (unknown venues only)
-- expected finish / curfew (if not known)
-- last useful departure + journey time (until live transport is integrated)
-
-Known venues automatically set venue scale, and a small number have conservative curfew fallbacks.
-Unknown UK venues still work via inferred/default venue scale.
-
-Next major product milestone: automatic live public-transport lookup, which removes the final manual journey inputs.
+Changes:
+- Transit-map wordmark: lime underline with three stop circles
+- Stronger iPad/Safari overflow protection
+- No horizontal spill from native time/number fields
+- Slightly richer homepage without adding required clicks
+- Venue intelligence readout after venue entry
+- Core quick flow remains Venue → Home → CAN I STAY?
