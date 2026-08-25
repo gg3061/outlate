@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#090c0a">
 <meta name="description" content="OutLate tells you whether you can stay to the end of a UK gig and still make the last useful train home.">
-<title>OutLate — Know when to leave</title>
+<title>OutLate — Stay for the show</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -596,6 +596,47 @@ summary::-webkit-details-marker{display:none}
   line-height:1.4;
 }
 
+
+.event-verdict{
+  margin:17px;
+  padding:17px;
+  border-radius:18px;
+  border:1px solid rgba(200,255,72,.28);
+  background:linear-gradient(180deg,rgba(200,255,72,.075),rgba(200,255,72,.035));
+}
+.event-verdict .eyebrow{
+  color:var(--lime);
+  font:600 9px/1 "IBM Plex Mono",monospace;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.event-verdict h3{
+  font-size:25px;
+  line-height:1.02;
+  letter-spacing:-.8px;
+}
+.event-verdict p{
+  color:#cbd2cc;
+  font-size:12.5px;
+  line-height:1.5;
+  margin:9px 0 0;
+}
+.event-clock{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  margin-top:12px;
+}
+.event-clock strong{
+  font:700 34px/1 "IBM Plex Mono",monospace;
+  color:var(--ink);
+}
+.event-clock span{
+  color:var(--muted);
+  font-size:11px;
+}
+
 .notice{
   color:#7f8981;
   font-size:10.5px;
@@ -646,14 +687,15 @@ footer{
 </header>
 
 <section class="hero">
-  <div class="kicker">Late-night journey check</div>
-  <h1>Know when to leave.</h1>
-  <p>OutLate checks the venue, likely finish and journey home so you can stay as late as possible without missing the last useful connection.</p>
+  <div class="kicker">Live event leave-time checker</div>
+  <h1>Stay for the show.</h1>
+  <p>OutLate works out whether you can stay until the end of the event — and, if not, the exact time you should leave. No route planning. Just the decision you need.</p>
 
   <div class="smart-strip" aria-label="What OutLate considers">
     <span class="smart-chip"><b>Curfew-aware</b></span>
     <span class="smart-chip">Venue-size adjusted</span>
-    <span class="smart-chip">Live TfL journey check</span>
+    <span class="smart-chip">Live transport checked</span>
+    <span class="smart-chip">Crowd exit model</span>
     <span class="smart-chip">Built-in safety margin</span>
   </div>
 </section>
@@ -705,7 +747,7 @@ footer{
   </div>
 
   <button id="check" class="main-cta">CHECK MY NIGHT</button>
-  <div class="micro">Fast check · your home station is remembered on this device. London beta uses TfL Journey Planner data directly.</div>
+  <div class="micro">Fast check · your home station is remembered. Transport data stays in the background.</div>
 
   <div id="needMore" class="secondary-panel">
     <h3>Just one more thing</h3>
@@ -732,7 +774,7 @@ footer{
 
     <div id="tflState" class="tfl-state"></div>
 
-    <button id="continue" class="continue">Check journey</button>
+    <button id="continue" class="continue">Get my verdict</button>
   </div>
 </section>
 
@@ -740,45 +782,22 @@ footer{
   <div class="result-head">
     <div id="status" class="status warn"><span class="dot"></span><span>TIGHT</span></div>
     <h2 id="headline"></h2>
-    <div id="route" class="route"></div>
   </div>
 
   <div class="metrics">
-    <div class="metric"><small>Buffer</small><strong id="buffer"></strong></div>
-    <div class="metric"><small>Leave by</small><strong id="leaveBy"></strong></div>
-    <div class="metric"><small>Home by</small><strong id="homeBy"></strong></div>
+    <div class="metric"><small>Time spare</small><strong id="buffer"></strong></div>
+    <div class="metric"><small>Latest leave</small><strong id="leaveBy"></strong></div>
+    <div class="metric"><small>Expected finish</small><strong id="eventFinishMetric"></strong></div>
   </div>
 
 
-  <div class="route-card">
-    <div class="route-card-label">Latest viable journey</div>
-    <div class="route-flow">
-      <div class="route-point">
-        <small>Leave</small>
-        <strong id="routeVenue">Venue</strong>
-      </div>
-      <div class="route-arrow">→</div>
-      <div class="route-point">
-        <small>Start from</small>
-        <strong id="routeStation">Local transport</strong>
-      </div>
-      <div class="route-arrow">→</div>
-      <div class="route-point">
-        <small>Home</small>
-        <strong id="routeHome">Home</strong>
-      </div>
-    </div>
-    <div id="journeySteps" class="journey-steps"></div>
-    <div class="route-meta">
-      <span>Latest station departure <strong id="routeDeparture">—</strong></span>
-      <span>Arrive home <strong id="routeArrival">—</strong></span>
-    </div>
-    <div class="source-note">Journey data: Transport for London Journey Planner API. Planned and live service information can change.</div>
-  </div>
-
-  <div class="recommend">
-    <div class="eyebrow">OutLate recommendation</div>
+  <div class="event-verdict">
+    <div class="eyebrow">Your night</div>
     <h3 id="recommendTitle"></h3>
+    <div class="event-clock">
+      <strong id="verdictTime">—</strong>
+      <span id="verdictTimeLabel">latest safe leave</span>
+    </div>
     <p id="recommendText"></p>
   </div>
 
@@ -790,18 +809,18 @@ footer{
       <div class="detail-row"><span>Exit + crowd allowance</span><strong id="dExit"></strong></div>
       <div class="detail-row"><span>Walk to transport</span><strong id="dWalk"></strong></div>
       <div class="detail-row"><span>Safety margin</span><strong>8 min</strong></div>
-      <div class="detail-row"><span>Latest station departure</span><strong id="dLast"></strong></div>
-      <div class="detail-row"><span>Journey source</span><strong>TfL Journey Planner</strong></div>
+      <div class="detail-row"><span>Transport cut-off used</span><strong id="dLast"></strong></div>
+      <div class="detail-row"><span>Transport check</span><strong>Live network data</strong></div>
       <div class="detail-row"><span>Timing confidence</span><strong id="dConfidence"></strong></div>
     </div>
   </details>
 
   <div class="notice">
-    OutLate combines venue assumptions with TfL journey-planning data. It is not a travel guarantee: curfews, queues, engineering works and live service conditions can change.
+    OutLate combines event timing, venue-exit assumptions and live transport availability to estimate your latest safe leave time. It is not a travel guarantee.
   </div>
 </section>
 
-<footer>OUTLATE• — stay for more of the night. · TfL journey data · Beta 7.1</footer>
+<footer>OUTLATE• — stay for more of the night. · Beta 8</footer>
 </div>
 
 <script>
@@ -989,46 +1008,91 @@ function renderJourneySteps(journey){
   }).join("");
 }
 
-async function fetchTfLJourney(from,to,finishDate,allowAllModes=false){
+async function resolveStopPoint(query){
+  const url=`https://api.tfl.gov.uk/StopPoint/Search/${encodeURIComponent(query)}?maxResults=20&includeHubs=true`;
+  const response=await fetch(url,{headers:{"Accept":"application/json"}});
+  if(!response.ok) throw new Error(`Station lookup returned ${response.status}`);
+
+  const data=await response.json();
+  const matches=Array.isArray(data?.matches) ? data.matches : [];
+  if(!matches.length) throw new Error(`TfL couldn't identify “${query}”`);
+
+  const q=query.toLowerCase().trim();
+  const ranked=[...matches].sort((a,b)=>{
+    const an=String(a?.name||"").toLowerCase();
+    const bn=String(b?.name||"").toLowerCase();
+    const aExact=an===q || an===`${q} rail station` || an===`${q} underground station`;
+    const bExact=bn===q || bn===`${q} rail station` || bn===`${q} underground station`;
+    if(aExact!==bExact) return aExact ? -1 : 1;
+
+    const aRail=/rail|underground|dlr|overground|tram/i.test(String(a?.type||"")+" "+an);
+    const bRail=/rail|underground|dlr|overground|tram/i.test(String(b?.type||"")+" "+bn);
+    if(aRail!==bRail) return aRail ? -1 : 1;
+
+    return an.length-bn.length;
+  });
+
+  const best=ranked[0];
+  return {
+    id:best.id || query,
+    name:best.name || query,
+    type:best.type || ""
+  };
+}
+
+async function fetchTfLJourney(from,to,finishDate){
+  const [fromStop,toStop]=await Promise.all([
+    resolveStopPoint(from),
+    resolveStopPoint(to)
+  ]);
+
   const target=new Date(finishDate);
   if(target.getHours()>=6) target.setDate(target.getDate()+1);
   target.setHours(4,30,0,0);
 
-  const base=`https://api.tfl.gov.uk/Journey/JourneyResults/${encodeURIComponent(from)}/to/${encodeURIComponent(to)}`;
+  const base=`https://api.tfl.gov.uk/Journey/JourneyResults/${encodeURIComponent(fromStop.id)}/to/${encodeURIComponent(toStop.id)}`;
   const params=new URLSearchParams({
     nationalSearch:"true",
     date:compactDate(target),
     time:"0430",
     timeIs:"Arriving",
-    journeyPreference:"LeastTime"
+    journeyPreference:"LeastTime",
+    calcOneDirection:"true",
+    useRealTimeLiveArrivals:"true"
   });
-
-  if(!allowAllModes){
-    params.set("mode","tube,overground,train,dlr,tram");
-  }
 
   const response=await fetch(`${base}?${params.toString()}`,{
     headers:{"Accept":"application/json"}
   });
 
   if(!response.ok){
-    throw new Error(`TfL returned ${response.status}`);
+    let detail="";
+    try{
+      const body=await response.json();
+      detail=body?.message || body?.exceptionMessage || "";
+    }catch(e){}
+    throw new Error(`TfL journey planner returned ${response.status}${detail ? ` — ${detail}` : ""}`);
   }
 
   const data=await response.json();
   const journeys=Array.isArray(data?.journeys) ? data.journeys : [];
-  if(!journeys.length) return {journey:null,data};
+
+  if(!journeys.length){
+    throw new Error(`No journey found from ${fromStop.name} to ${toStop.name}`);
+  }
 
   journeys.sort((a,b)=>new Date(b.startDateTime)-new Date(a.startDateTime));
-  return {journey:journeys[0],data};
+
+  return {
+    journey:journeys[0],
+    data,
+    fromStop,
+    toStop
+  };
 }
 
 async function findLatestJourney(from,to,finishDate){
-  let result=await fetchTfLJourney(from,to,finishDate,false);
-  if(result.journey) return {...result,railOnly:true};
-
-  result=await fetchTfLJourney(from,to,finishDate,true);
-  return {...result,railOnly:false};
+  return await fetchTfLJourney(from,to,finishDate);
 }
 
 async function prepQuestions(){
@@ -1211,7 +1275,7 @@ async function calculateWithTfL(){
 
   $("needMore").style.display="block";
   $("tflState").className="tfl-state loading";
-  $("tflState").innerHTML=`Checking the latest viable journey from <strong>${escapeHtml(from)}</strong> to <strong>${escapeHtml(home)}</strong>…`;
+  $("tflState").innerHTML=`Checking tonight’s event against the latest safe transport window…`;
 
   try{
     const found=await findLatestJourney(from,home,finishDate);
@@ -1231,38 +1295,32 @@ async function calculateWithTfL(){
     let statusClass,statusText,headline,title,text;
 
     if(safeBuffer>=15){
-      statusClass="status good";statusText="STAY";
-      headline="Stay to the end.";
-      title="You should make the latest useful journey.";
-      text=`TfL has a journey leaving ${from} at ${formatDateTime(journey.startDateTime)}. After venue exit, walking time and an 8-minute safety margin, OutLate leaves you about ${safeBuffer} minutes spare.`;
+      statusClass="status good";statusText="SAFE";
+      headline="YES — STAY TO THE END.";
+      title="You can stay for the whole event.";
+      text=`Based on the expected finish, venue exit time, crowding and the final viable transport window, you have about ${safeBuffer} minutes of protected spare time.`;
     }else if(safeBuffer>=0){
-      statusClass="status warn";statusText="TIGHT";
+      statusClass="status warn";statusText="CLOSE";
       headline=`Leave by ${formatDateTime(leaveByDate)}.`;
-      title="You can stay late — but don't hang around.";
-      text=`The latest useful journey leaves ${from} at ${formatDateTime(journey.startDateTime)}. Your protected margin after the expected finish is only about ${safeBuffer} minutes.`;
+      title="You can stay almost to the end.";
+      text=`OutLate has checked the event finish against the final viable transport window. You only have about ${safeBuffer} minutes of protected spare time, so leave promptly at the time above.`;
     }else{
-      statusClass="status bad";statusText="GO EARLIER";
+      statusClass="status bad";statusText="LEAVE EARLY";
       headline=`Leave by ${formatDateTime(leaveByDate)}.`;
-      title="Staying to the expected finish is too risky.";
-      text=`To make the latest useful journey from ${from} at ${formatDateTime(journey.startDateTime)}, OutLate estimates you need to leave about ${Math.abs(safeBuffer)} minutes before the expected finish.`;
+      title="You need to leave before the end.";
+      text=`The event is expected to run beyond your safe transport window. Leave about ${Math.abs(safeBuffer)} minutes before the expected finish to protect your journey home.`;
     }
 
     $("status").className=statusClass;
     $("status").innerHTML=`<span class="dot"></span><span>${statusText}</span>`;
     $("headline").textContent=headline;
-    $("route").textContent=`Suggested: ${matchedVenue?.name || venueName} → ${from} → ${home}`;
     $("buffer").textContent=safeBuffer>=0?`+${safeBuffer}m`:`${safeBuffer}m`;
     $("leaveBy").textContent=formatDateTime(leaveByDate);
-    $("homeBy").textContent=formatDateTime(journey.arrivalDateTime);
-
-    $("routeVenue").textContent=matchedVenue?.name || venueName;
-    $("routeStation").textContent=from;
-    $("routeHome").textContent=home;
-    $("routeDeparture").textContent=formatDateTime(journey.startDateTime);
-    $("routeArrival").textContent=formatDateTime(journey.arrivalDateTime);
-    renderJourneySteps(journey);
+    $("eventFinishMetric").textContent=finishString;
 
     $("recommendTitle").textContent=title;
+    $("verdictTime").textContent = safeBuffer>=15 ? finishString : formatDateTime(leaveByDate);
+    $("verdictTimeLabel").textContent = safeBuffer>=15 ? "expected event finish" : "latest safe leave";
     $("recommendText").textContent=text;
 
     $("dSize").textContent=p.label;
@@ -1272,10 +1330,8 @@ async function calculateWithTfL(){
     $("dLast").textContent=formatDateTime(journey.startDateTime);
     $("dConfidence").textContent=matchedEvent ? "High · event + TfL" : `${curfewConfidence} · TfL journey`;
 
-    $("tflState").className="tfl-state success";
-    $("tflState").innerHTML=found.railOnly
-      ? `Journey found using rail, Tube, Overground, DLR and tram.`
-      : `No rail-only option was returned, so TfL's broader public-transport journey was used.`;
+    $("tflState").className="tfl-state";
+    $("tflState").innerHTML="";
 
     saveHome();
     $("result").style.display="block";
