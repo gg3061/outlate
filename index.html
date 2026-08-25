@@ -56,9 +56,8 @@ header{
 }
 .brand-lockup{
   position:relative;
-  display:inline-flex;
-  flex-direction:column;
-  width:136px;
+  display:inline-block;
+  width:max-content;
   padding-bottom:10px;
   flex:0 0 auto;
 }
@@ -69,8 +68,8 @@ header{
 }
 .route-logo{
   position:absolute;
-  left:1px;
-  right:1px;
+  left:0;
+  right:0;
   bottom:0;
   height:8px;
 }
@@ -95,7 +94,6 @@ header{
   z-index:2;
 }
 .route-stop.start{left:0}
-.route-stop.mid{left:50%;transform:translateX(-50%)}
 .route-stop.end{right:0}
 .beta{
   font:600 9.5px/1 "IBM Plex Mono",monospace;
@@ -396,6 +394,105 @@ summary::-webkit-details-marker{display:none}
   font-family:"IBM Plex Mono",monospace;
   font-weight:600;
 }
+
+.route-card{
+  margin:0 17px 17px;
+  padding:15px;
+  border:1px solid #2b352d;
+  border-radius:16px;
+  background:#0d120e;
+}
+.route-card-label{
+  color:var(--muted);
+  font:600 9px/1 "IBM Plex Mono",monospace;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  margin-bottom:11px;
+}
+.route-flow{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1fr);
+  align-items:center;
+  gap:4px;
+}
+.route-point{min-width:0}
+.route-point small{
+  display:block;
+  color:var(--muted);
+  font-size:9px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  margin-bottom:3px;
+}
+.route-point strong{
+  display:block;
+  font:600 12px/1.25 "Space Grotesk",sans-serif;
+  overflow-wrap:anywhere;
+}
+.route-arrow{
+  text-align:center;
+  color:var(--lime);
+  font:600 15px/1 "IBM Plex Mono",monospace;
+}
+.route-meta{
+  margin-top:11px;
+  padding-top:10px;
+  border-top:1px solid var(--line);
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  color:var(--muted);
+  font-size:10.5px;
+}
+.route-meta strong{
+  color:var(--ink);
+  font-family:"IBM Plex Mono",monospace;
+}
+.event-lookup{
+  display:none;
+  width:100%;
+  margin-top:8px;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 11px;
+  border-radius:12px;
+  background:#0d120e;
+  border:1px solid #28322a;
+  color:#abb4ad;
+  font-size:11px;
+  line-height:1.35;
+}
+.event-lookup-copy{min-width:0}
+.event-lookup a{
+  color:var(--lime-soft);
+  text-decoration:none;
+  font-weight:600;
+  white-space:nowrap;
+}
+.event-match{
+  display:none;
+  margin-top:8px;
+  padding:10px 11px;
+  border-radius:12px;
+  background:rgba(200,255,72,.06);
+  border:1px solid rgba(200,255,72,.18);
+  font-size:11px;
+  line-height:1.4;
+  color:#c8d0c9;
+}
+.event-match strong{color:var(--lime-soft)}
+.time-mask-wrap{
+  position:relative;
+  width:100%;
+}
+.time-mask{
+  font-family:"IBM Plex Mono",monospace;
+  letter-spacing:.04em;
+  font-variant-numeric:tabular-nums;
+}
+.time-mask::placeholder{letter-spacing:.04em}
+
 .notice{
   color:#7f8981;
   font-size:10.5px;
@@ -417,6 +514,12 @@ footer{
   .metric strong{font-size:14px}
   .smart-chip{font-size:10px}
 }
+@media(max-width:480px){
+  .route-flow{grid-template-columns:1fr}
+  .route-arrow{transform:rotate(90deg);padding:1px 0}
+  .route-meta{flex-direction:column;gap:4px}
+  .event-lookup{align-items:flex-start;flex-direction:column}
+}
 @media(max-width:360px){
   .metrics{grid-template-columns:1fr}
   .metric{border-right:0;border-bottom:1px solid var(--line)}
@@ -433,7 +536,6 @@ footer{
     <div class="brand">OUTLATE</div>
     <div class="route-logo" aria-hidden="true">
       <span class="route-stop start"></span>
-      <span class="route-stop mid"></span>
       <span class="route-stop end"></span>
     </div>
   </div>
@@ -441,9 +543,9 @@ footer{
 </header>
 
 <section class="hero">
-  <div class="kicker">Last-train decision tool</div>
-  <h1>Can I stay?</h1>
-  <p>Tell OutLate where you are and where you're going. It estimates whether you can stay to the end — or exactly when you should leave.</p>
+  <div class="kicker">Late-night journey check</div>
+  <h1>Know when to leave.</h1>
+  <p>OutLate checks the venue, likely finish and journey home so you can stay as late as possible without missing the last useful connection.</p>
 
   <div class="smart-strip" aria-label="What OutLate considers">
     <span class="smart-chip"><b>Curfew-aware</b></span>
@@ -454,8 +556,8 @@ footer{
 
 <section class="search-card">
   <div class="field">
-    <label for="venue">Venue</label>
-    <input id="venue" list="knownVenues" placeholder="e.g. Moth Club" autocomplete="off">
+    <label for="venue">Event or venue</label>
+    <input id="venue" list="knownVenues" placeholder="e.g. Moth Club or Superchunk at Moth Club" autocomplete="off">
     <datalist id="knownVenues">
       <option value="Moth Club">
       <option value="Electric Ballroom">
@@ -486,6 +588,11 @@ footer{
       <option value="Boileroom">
     </datalist>
     <div id="venueReadout" class="venue-readout"></div>
+    <div id="eventMatch" class="event-match"></div>
+    <div id="eventLookup" class="event-lookup">
+      <div id="eventLookupCopy" class="event-lookup-copy">Check the latest official event timing information.</div>
+      <a id="eventSearchLink" href="#" target="_blank" rel="noopener">Search event info ↗</a>
+    </div>
   </div>
 
   <div class="field">
@@ -493,8 +600,8 @@ footer{
     <input id="home" placeholder="e.g. Earlsfield" value="Earlsfield" autocomplete="off">
   </div>
 
-  <button id="check" class="main-cta">CAN I STAY?</button>
-  <div class="micro">Your home station is remembered on this device.</div>
+  <button id="check" class="main-cta">CHECK MY NIGHT</button>
+  <div class="micro">Fast check · your home station is remembered on this device.</div>
 
   <div id="needMore" class="secondary-panel">
     <h3>Just one more thing</h3>
@@ -512,12 +619,12 @@ footer{
 
     <div id="curfewQuestion" style="display:none;margin-top:12px">
       <label for="curfew">Curfew / expected finish</label>
-      <input id="curfew" type="time" value="23:00">
+      <div class="time-mask-wrap"><input id="curfew" class="time-mask" type="text" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="23:00" value="23:00"></div>
     </div>
 
     <div id="transportQuestion" style="display:none;margin-top:12px">
       <label for="lastDeparture">Last useful departure from the venue area</label>
-      <input id="lastDeparture" type="time" value="23:40">
+      <div class="time-mask-wrap"><input id="lastDeparture" class="time-mask" type="text" inputmode="numeric" autocomplete="off" maxlength="5" placeholder="23:40" value="23:40"></div>
       <div style="height:10px"></div>
       <label for="journeyMinutes">Journey home after boarding</label>
       <input id="journeyMinutes" type="number" min="1" max="300" value="42" inputmode="numeric">
@@ -538,6 +645,31 @@ footer{
     <div class="metric"><small>Buffer</small><strong id="buffer"></strong></div>
     <div class="metric"><small>Leave by</small><strong id="leaveBy"></strong></div>
     <div class="metric"><small>Home by</small><strong id="homeBy"></strong></div>
+  </div>
+
+
+  <div class="route-card">
+    <div class="route-card-label">Suggested route</div>
+    <div class="route-flow">
+      <div class="route-point">
+        <small>Leave</small>
+        <strong id="routeVenue">Venue</strong>
+      </div>
+      <div class="route-arrow">→</div>
+      <div class="route-point">
+        <small>Board at</small>
+        <strong id="routeStation">Local transport</strong>
+      </div>
+      <div class="route-arrow">→</div>
+      <div class="route-point">
+        <small>Home</small>
+        <strong id="routeHome">Home</strong>
+      </div>
+    </div>
+    <div class="route-meta">
+      <span>Last useful departure <strong id="routeDeparture">—</strong></span>
+      <span>Estimated home <strong id="routeArrival">—</strong></span>
+    </div>
   </div>
 
   <div class="recommend">
@@ -581,34 +713,45 @@ const sizeProfiles={
    Curfews are conservative venue-level fallbacks, not guarantees.
    Event-specific times should override them when available. */
 const knownVenues={
-  "moth club":{name:"Moth Club",size:"small"},
-  "electric ballroom":{name:"Electric Ballroom",size:"small"},
-  "roundhouse":{name:"Roundhouse",size:"medium"},
-  "the lexington":{name:"The Lexington",size:"small"},
-  "village underground":{name:"Village Underground",size:"small"},
-  "union chapel":{name:"Union Chapel",size:"small",curfew:"22:30"},
-  "troxy":{name:"Troxy",size:"medium"},
-  "eventim apollo":{name:"Eventim Apollo",size:"medium"},
-  "o2 academy brixton":{name:"O2 Academy Brixton",size:"medium"},
-  "alexandra palace":{name:"Alexandra Palace",size:"arena",curfew:"22:45"},
-  "royal albert hall":{name:"Royal Albert Hall",size:"medium"},
-  "the o2":{name:"The O2",size:"arena",curfew:"23:00"},
-  "ovo arena wembley":{name:"OVO Arena Wembley",size:"arena"},
-  "wembley stadium":{name:"Wembley Stadium",size:"stadium",curfew:"22:30"},
-  "manchester academy":{name:"Manchester Academy",size:"medium"},
-  "albert hall manchester":{name:"Albert Hall Manchester",size:"medium"},
-  "ao arena":{name:"AO Arena",size:"arena"},
-  "co-op live":{name:"Co-op Live",size:"arena"},
-  "brudenell social club":{name:"Brudenell Social Club",size:"small"},
-  "o2 academy leeds":{name:"O2 Academy Leeds",size:"medium"},
-  "first direct arena":{name:"First Direct Arena",size:"arena"},
-  "barrowland ballroom":{name:"Barrowland Ballroom",size:"medium"},
-  "ovo hydro":{name:"OVO Hydro",size:"arena"},
-  "king tut's wah wah hut":{name:"King Tut's Wah Wah Hut",size:"small"},
-  "rock city":{name:"Rock City",size:"medium"},
-  "the leadmill":{name:"The Leadmill",size:"small"},
-  "boileroom":{name:"Boileroom",size:"small"}
+  "moth club":{name:"Moth Club",size:"small",station:"Hackney Central"},
+  "electric ballroom":{name:"Electric Ballroom",size:"small",station:"Camden Town"},
+  "roundhouse":{name:"Roundhouse",size:"medium",station:"Chalk Farm"},
+  "the lexington":{name:"The Lexington",size:"small",station:"Angel"},
+  "village underground":{name:"Village Underground",size:"small",station:"Shoreditch High Street"},
+  "union chapel":{name:"Union Chapel",size:"small",curfew:"22:30",station:"Highbury & Islington"},
+  "troxy":{name:"Troxy",size:"medium",station:"Limehouse"},
+  "eventim apollo":{name:"Eventim Apollo",size:"medium",station:"Hammersmith"},
+  "o2 academy brixton":{name:"O2 Academy Brixton",size:"medium",station:"Brixton"},
+  "alexandra palace":{name:"Alexandra Palace",size:"arena",curfew:"22:45",station:"Alexandra Palace / Wood Green"},
+  "royal albert hall":{name:"Royal Albert Hall",size:"medium",station:"South Kensington"},
+  "the o2":{name:"The O2",size:"arena",curfew:"23:00",station:"North Greenwich"},
+  "ovo arena wembley":{name:"OVO Arena Wembley",size:"arena",station:"Wembley Park"},
+  "wembley stadium":{name:"Wembley Stadium",size:"stadium",curfew:"22:30",station:"Wembley Park"},
+  "manchester academy":{name:"Manchester Academy",size:"medium",station:"Manchester Oxford Road"},
+  "albert hall manchester":{name:"Albert Hall Manchester",size:"medium",station:"Deansgate"},
+  "ao arena":{name:"AO Arena",size:"arena",station:"Manchester Victoria"},
+  "co-op live":{name:"Co-op Live",size:"arena",station:"Etihad Campus"},
+  "brudenell social club":{name:"Brudenell Social Club",size:"small",station:"Burley Park"},
+  "o2 academy leeds":{name:"O2 Academy Leeds",size:"medium",station:"Leeds"},
+  "first direct arena":{name:"First Direct Arena",size:"arena",station:"Leeds"},
+  "barrowland ballroom":{name:"Barrowland Ballroom",size:"medium",station:"Argyle Street"},
+  "ovo hydro":{name:"OVO Hydro",size:"arena",station:"Exhibition Centre"},
+  "king tut's wah wah hut":{name:"King Tut's Wah Wah Hut",size:"small",station:"Charing Cross"},
+  "rock city":{name:"Rock City",size:"medium",station:"Nottingham"},
+  "the leadmill":{name:"The Leadmill",size:"small",station:"Sheffield"},
+  "boileroom":{name:"Boileroom",size:"small",station:"Guildford"}
 };
+
+/*
+ Optional automatic event matching:
+ Ticketmaster Discovery API supports UK event/venue search and can expose an event end time
+ when one is supplied. Leave this blank and OutLate simply uses the venue/curfew model plus
+ a targeted web-search link. If a Ticketmaster developer key is added later, lookup happens
+ automatically without adding another user-facing click.
+*/
+const TICKETMASTER_API_KEY="";
+let matchedEvent=null;
+
 
 let chosenSize="small";
 let currentVenue=null;
@@ -660,7 +803,7 @@ function prepQuestions(){
   if(!home){$("home").focus();return false}
 
   const key=venueName.toLowerCase();
-  currentVenue=knownVenues[key]||null;
+  currentVenue=matchKnownVenue(venueName);
 
   $("needMore").style.display="block";
   $("transportQuestion").style.display="block";
@@ -696,6 +839,102 @@ function prepQuestions(){
 }
 
 
+
+function matchKnownVenue(text){
+  const lower=(text||"").toLowerCase().trim();
+  if(!lower) return null;
+
+  if(knownVenues[lower]) return knownVenues[lower];
+
+  const matches=Object.entries(knownVenues)
+    .filter(([key])=>lower.includes(key))
+    .sort((a,b)=>b[0].length-a[0].length);
+
+  return matches.length ? matches[0][1] : null;
+}
+
+function todayISO(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function prettyToday(){
+  return new Intl.DateTimeFormat("en-GB",{day:"numeric",month:"long",year:"numeric"}).format(new Date());
+}
+
+function buildEventSearchUrl(query, venueName){
+  const terms=[query || venueName, venueName, prettyToday(), "set times curfew"].filter(Boolean).join(" ");
+  return "https://www.google.com/search?q="+encodeURIComponent(terms);
+}
+
+function applyTimeMask(input){
+  input.addEventListener("input",()=>{
+    let digits=input.value.replace(/\D/g,"").slice(0,4);
+    if(digits.length>2) input.value=digits.slice(0,2)+":"+digits.slice(2);
+    else input.value=digits;
+  });
+  input.addEventListener("blur",()=>{
+    let digits=input.value.replace(/\D/g,"").slice(0,4);
+    if(digits.length===4){
+      let hh=Math.min(23,Math.max(0,parseInt(digits.slice(0,2),10)||0));
+      let mm=Math.min(59,Math.max(0,parseInt(digits.slice(2),10)||0));
+      input.value=String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0");
+    }
+  });
+}
+
+applyTimeMask($("curfew"));
+applyTimeMask($("lastDeparture"));
+
+async function tryTicketmasterMatch(venueProfile, rawQuery){
+  if(!TICKETMASTER_API_KEY || !venueProfile) return;
+
+  try{
+    const venueUrl=new URL("https://app.ticketmaster.com/discovery/v2/venues.json");
+    venueUrl.searchParams.set("apikey",TICKETMASTER_API_KEY);
+    venueUrl.searchParams.set("keyword",venueProfile.name);
+    venueUrl.searchParams.set("countryCode","GB");
+    venueUrl.searchParams.set("size","5");
+
+    const venueRes=await fetch(venueUrl);
+    if(!venueRes.ok) return;
+    const venueData=await venueRes.json();
+    const tmVenue=venueData?._embedded?.venues?.[0];
+    if(!tmVenue?.id) return;
+
+    const eventsUrl=new URL("https://app.ticketmaster.com/discovery/v2/events.json");
+    eventsUrl.searchParams.set("apikey",TICKETMASTER_API_KEY);
+    eventsUrl.searchParams.set("venueId",tmVenue.id);
+    eventsUrl.searchParams.set("countryCode","GB");
+    eventsUrl.searchParams.set("localStartDateTime",todayISO()+"T00:00:00,"+todayISO()+"T23:59:59");
+    eventsUrl.searchParams.set("size","10");
+
+    const evRes=await fetch(eventsUrl);
+    if(!evRes.ok) return;
+    const evData=await evRes.json();
+    const events=evData?._embedded?.events || [];
+    if(!events.length) return;
+
+    matchedEvent=events[0];
+    const end=matchedEvent?.dates?.end?.dateTime;
+    const start=matchedEvent?.dates?.start?.localTime;
+    let msg=`Matched event: <strong>${matchedEvent.name}</strong>`;
+    if(start) msg+=` · starts ${start.slice(0,5)}`;
+
+    if(end){
+      const endDate=new Date(end);
+      const endTime=endDate.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Europe/London"});
+      $("curfew").value=endTime;
+      curfewConfidence="High";
+      msg+=` · listed end ${endTime}`;
+    }
+    $("eventMatch").innerHTML=msg;
+    $("eventMatch").style.display="block";
+  }catch(e){
+    // Silent fallback: the core OutLate flow still works.
+  }
+}
+
 function updateVenueReadout(){
   const name=$("venue").value.trim();
   const box=$("venueReadout");
@@ -704,17 +943,27 @@ function updateVenueReadout(){
     return;
   }
 
-  const known=knownVenues[name.toLowerCase()]||null;
+  const known=matchKnownVenue(name);
+  $("eventMatch").style.display="none";
+  matchedEvent=null;
+
   if(known){
     const p=sizeProfiles[known.size];
     box.style.display="block";
     box.innerHTML=known.curfew
-      ? `<strong>${p.label}</strong> · venue profile recognised · likely curfew ${known.curfew}`
-      : `<strong>${p.label}</strong> · venue profile recognised`;
+      ? `<strong>${known.name}</strong> · ${p.label.toLowerCase()} · ${known.station || "local transport"} · likely curfew ${known.curfew}`
+      : `<strong>${known.name}</strong> · ${p.label.toLowerCase()} · ${known.station || "local transport"}`;
+    $("eventSearchLink").href=buildEventSearchUrl(name,known.name);
+    $("eventLookupCopy").textContent="Check today's official listing for doors, set times or curfew.";
+    $("eventLookup").style.display="flex";
+    tryTicketmasterMatch(known,name);
   }else{
     const guessed=inferUnknownSize(name);
     box.style.display="block";
     box.innerHTML=`New venue · provisionally treating it as a <strong>${sizeProfiles[guessed].label.toLowerCase()}</strong>`;
+    $("eventSearchLink").href=buildEventSearchUrl(name,name);
+    $("eventLookupCopy").textContent="Search today's event information to confirm the likely finish.";
+    $("eventLookup").style.display="flex";
   }
 }
 
@@ -727,6 +976,8 @@ $("continue").addEventListener("click",()=>{
   const venueName=$("venue").value.trim()||"Your venue";
   const home=$("home").value.trim()||"Home";
   const p=sizeProfiles[chosenSize];
+  const matchedVenue=matchKnownVenue(venueName);
+  const station=matchedVenue?.station || "Local transport";
   const finish=mins($("curfew").value);
   let last=norm(mins($("lastDeparture").value),finish);
   const journey=Math.max(1,Number($("journeyMinutes").value)||1);
@@ -758,10 +1009,16 @@ $("continue").addEventListener("click",()=>{
   $("status").className=statusClass;
   $("status").innerHTML=`<span class="dot"></span><span>${statusText}</span>`;
   $("headline").textContent=headline;
-  $("route").textContent=`${venueName} → ${home}`;
+  $("route").textContent=`Suggested: ${matchedVenue?.name || venueName} → ${station} → ${home}`;
   $("buffer").textContent=safeBuffer>=0?`+${Math.round(safeBuffer)}m`:`${Math.round(safeBuffer)}m`;
   $("leaveBy").textContent=fmt(latestExit);
   $("homeBy").textContent=fmt(homeTime);
+
+  $("routeVenue").textContent=matchedVenue?.name || venueName;
+  $("routeStation").textContent=station;
+  $("routeHome").textContent=home;
+  $("routeDeparture").textContent=fmt(last);
+  $("routeArrival").textContent=fmt(homeTime);
 
   $("recommendTitle").textContent=title;
   $("recommendText").textContent=text;
@@ -771,7 +1028,7 @@ $("continue").addEventListener("click",()=>{
   $("dExit").textContent=`${p.exit+p.crowd} min`;
   $("dWalk").textContent=`${p.walk} min`;
   $("dLast").textContent=fmt(last);
-  $("dConfidence").textContent=curfewConfidence;
+  $("dConfidence").textContent=matchedEvent ? "High · event data" : curfewConfidence;
 
   saveHome();
   $("result").style.display="block";
