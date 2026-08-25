@@ -1,21 +1,29 @@
-# OutLate Beta 8 — Event-first
+# OutLate Beta 9 — Transport preferences
 
-This version deliberately stops looking like a journey planner.
+## New
+A compact **Ways I’ll get home** control lets the user choose which public transport they are actually willing to use late at night:
 
-## Product
-OutLate answers one question:
-**Can I stay to the end of this event?**
+- Tube
+- Overground / Elizabeth line
+- National Rail
+- Bus / night bus
+- DLR / tram
 
-If yes: STAY TO THE END.
-If no: it gives the exact latest safe venue-leave time.
+The choices are remembered on the device.
 
-## What changed
-- Removed the visible TfL journey itinerary.
-- Removed route legs, route card, boarding station and arrival-home UI.
-- Transport data is still checked in the background to calculate the safe cutoff.
-- Result is event-centric: time spare, latest leave, expected finish.
-- Stronger "Your night" verdict card.
-- Curfew / expected finish keeps the permanent HH : MM control.
-- User-facing copy no longer positions OutLate as a route planner.
+## Why it matters
+The selected modes are passed into the background TfL journey calculation. That means the event verdict can genuinely change based on the user's preferences — particularly on weeknights when night buses may continue after rail and Tube services finish.
 
-Transport planning is an input, not the product.
+The site still does **not** display a route or try to be Citymapper. It only presents the event decision:
+- stay to the end,
+- stay almost to the end,
+- or leave by a specific time.
+
+The result also states whether night buses were included or excluded, so the assumption is clear.
+
+## Existing behaviour retained
+- Event-first design
+- Permanent HH : MM curfew / end-time control
+- Venue-size crowd/exit modelling
+- 8-minute safety margin
+- Live transport data kept in the background

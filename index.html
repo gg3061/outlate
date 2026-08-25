@@ -637,6 +637,116 @@ summary::-webkit-details-marker{display:none}
   font-size:11px;
 }
 
+
+.travel-prefs{
+  margin:2px 0 0;
+  border:1px solid #313b33;
+  border-radius:14px;
+  background:#0b100c;
+  overflow:hidden;
+}
+.travel-prefs > summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:13px 14px;
+  cursor:pointer;
+  list-style:none;
+}
+.travel-prefs > summary::-webkit-details-marker{display:none}
+.travel-prefs-title{
+  min-width:0;
+}
+.travel-prefs-title strong{
+  display:block;
+  color:#dce2dc;
+  font-size:12.5px;
+  line-height:1.2;
+}
+.travel-prefs-title small{
+  display:block;
+  margin-top:4px;
+  color:var(--muted);
+  font-size:10.5px;
+  line-height:1.3;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.travel-prefs-chevron{
+  color:var(--lime);
+  font:700 15px/1 "IBM Plex Mono",monospace;
+  transform:rotate(0deg);
+  transition:transform .15s ease;
+}
+.travel-prefs[open] .travel-prefs-chevron{
+  transform:rotate(180deg);
+}
+.travel-prefs-body{
+  border-top:1px solid #28322a;
+  padding:12px;
+}
+.mode-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;
+}
+.mode-choice{
+  position:relative;
+  display:block;
+  margin:0;
+}
+.mode-choice input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.mode-choice span{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:9px 8px;
+  border:1px solid #303a32;
+  border-radius:11px;
+  background:#0e140f;
+  color:#98a29a;
+  text-align:center;
+  font-size:11px;
+  line-height:1.2;
+  cursor:pointer;
+  transition:border-color .12s,background .12s,color .12s;
+}
+.mode-choice input:checked + span{
+  border-color:rgba(200,255,72,.42);
+  background:rgba(200,255,72,.09);
+  color:var(--lime-soft);
+}
+.mode-choice input:focus-visible + span{
+  box-shadow:0 0 0 3px rgba(200,255,72,.1);
+}
+.pref-note{
+  margin:10px 2px 0;
+  color:#737d75;
+  font-size:9.8px;
+  line-height:1.42;
+}
+.mode-impact{
+  margin-top:10px;
+  padding:10px 11px;
+  border-radius:11px;
+  background:rgba(200,255,72,.055);
+  border:1px solid rgba(200,255,72,.15);
+  color:#aeb7b0;
+  font-size:10.5px;
+  line-height:1.4;
+}
+.mode-impact strong{color:var(--lime-soft)}
+@media(max-width:420px){
+  .mode-grid{grid-template-columns:1fr}
+}
+
 .notice{
   color:#7f8981;
   font-size:10.5px;
@@ -746,8 +856,45 @@ footer{
     <input id="home" placeholder="e.g. Earlsfield" value="Earlsfield" autocomplete="off">
   </div>
 
+  <div class="field">
+    <details id="transportPrefs" class="travel-prefs">
+      <summary>
+        <div class="travel-prefs-title">
+          <strong>Ways I’ll get home</strong>
+          <small id="transportSummary">All common public transport</small>
+        </div>
+        <span class="travel-prefs-chevron" aria-hidden="true">⌄</span>
+      </summary>
+      <div class="travel-prefs-body">
+        <div class="mode-grid">
+          <label class="mode-choice">
+            <input type="checkbox" data-transport="tube" checked>
+            <span>Tube</span>
+          </label>
+          <label class="mode-choice">
+            <input type="checkbox" data-transport="overground" checked>
+            <span>Overground / Elizabeth</span>
+          </label>
+          <label class="mode-choice">
+            <input type="checkbox" data-transport="rail" checked>
+            <span>National Rail</span>
+          </label>
+          <label class="mode-choice">
+            <input type="checkbox" data-transport="bus" checked>
+            <span>Bus / night bus</span>
+          </label>
+          <label class="mode-choice">
+            <input type="checkbox" data-transport="light" checked>
+            <span>DLR / tram</span>
+          </label>
+        </div>
+        <p class="pref-note">OutLate only uses the types you leave ticked. On weeknights, allowing night buses can keep your safe window open after rail and Tube services stop.</p>
+      </div>
+    </details>
+  </div>
+
   <button id="check" class="main-cta">CHECK MY NIGHT</button>
-  <div class="micro">Fast check · your home station is remembered. Transport data stays in the background.</div>
+  <div class="micro">Fast check · your home station and travel preferences are remembered. Transport data stays in the background.</div>
 
   <div id="needMore" class="secondary-panel">
     <h3>Just one more thing</h3>
@@ -799,6 +946,7 @@ footer{
       <span id="verdictTimeLabel">latest safe leave</span>
     </div>
     <p id="recommendText"></p>
+    <div id="modeImpact" class="mode-impact"></div>
   </div>
 
   <details>
@@ -810,6 +958,7 @@ footer{
       <div class="detail-row"><span>Walk to transport</span><strong id="dWalk"></strong></div>
       <div class="detail-row"><span>Safety margin</span><strong>8 min</strong></div>
       <div class="detail-row"><span>Transport cut-off used</span><strong id="dLast"></strong></div>
+      <div class="detail-row"><span>Transport allowed</span><strong id="dModes"></strong></div>
       <div class="detail-row"><span>Transport check</span><strong>Live network data</strong></div>
       <div class="detail-row"><span>Timing confidence</span><strong id="dConfidence"></strong></div>
     </div>
@@ -820,7 +969,7 @@ footer{
   </div>
 </section>
 
-<footer>OUTLATE• — stay for more of the night. · Beta 8</footer>
+<footer>OUTLATE• — stay for more of the night. · Beta 9</footer>
 </div>
 
 <script>
@@ -911,6 +1060,90 @@ function loadHome(){
   }catch(e){}
 }
 
+
+const transportGroups={
+  tube:{
+    label:"Tube",
+    modes:["tube"]
+  },
+  overground:{
+    label:"Overground / Elizabeth",
+    modes:["overground","elizabeth-line"]
+  },
+  rail:{
+    label:"National Rail",
+    modes:["national-rail"]
+  },
+  bus:{
+    label:"Bus / night bus",
+    modes:["bus","replacement-bus"]
+  },
+  light:{
+    label:"DLR / tram",
+    modes:["dlr","tram"]
+  }
+};
+
+function selectedTransportKeys(){
+  return [...document.querySelectorAll("[data-transport]:checked")].map(el=>el.dataset.transport);
+}
+
+function selectedTfLModes(){
+  return selectedTransportKeys().flatMap(key=>transportGroups[key]?.modes||[]);
+}
+
+function selectedTransportLabels(){
+  return selectedTransportKeys().map(key=>transportGroups[key]?.label).filter(Boolean);
+}
+
+function updateTransportSummary(){
+  const labels=selectedTransportLabels();
+  const allCount=Object.keys(transportGroups).length;
+  const el=$("transportSummary");
+
+  if(labels.length===0){
+    el.textContent="Choose at least one";
+    return;
+  }
+  if(labels.length===allCount){
+    el.textContent="All common public transport";
+    return;
+  }
+  el.textContent=labels.join(" · ");
+}
+
+function saveTransportPrefs(){
+  try{
+    localStorage.setItem("outlate-transport",JSON.stringify(selectedTransportKeys()));
+  }catch(e){}
+}
+
+function loadTransportPrefs(){
+  try{
+    const raw=localStorage.getItem("outlate-transport");
+    if(!raw){
+      updateTransportSummary();
+      return;
+    }
+    const saved=JSON.parse(raw);
+    if(!Array.isArray(saved)) return;
+
+    document.querySelectorAll("[data-transport]").forEach(el=>{
+      el.checked=saved.includes(el.dataset.transport);
+    });
+    updateTransportSummary();
+  }catch(e){
+    updateTransportSummary();
+  }
+}
+
+document.querySelectorAll("[data-transport]").forEach(el=>{
+  el.addEventListener("change",()=>{
+    updateTransportSummary();
+    saveTransportPrefs();
+  });
+});
+
 function inferUnknownSize(name){
   const n=name.toLowerCase();
   if(/stadium|park|racecourse|open air|festival/.test(n)) return "stadium";
@@ -987,26 +1220,6 @@ function legSummary(leg){
   return `${mode || "Travel"} from ${from} to ${to}`;
 }
 
-function renderJourneySteps(journey){
-  const legs=journey?.legs || [];
-  $("journeySteps").innerHTML=legs.map(leg=>{
-    const dep=formatDateTime(leg.departureTime || leg.startDateTime);
-    const arr=formatDateTime(leg.arrivalTime);
-    const summary=legSummary(leg);
-    const from=leg?.departurePoint?.commonName || "";
-    const to=leg?.arrivalPoint?.commonName || "";
-    const sub=[from,to].filter(Boolean).join(" → ");
-
-    return `<div class="journey-step">
-      <div class="journey-step-time">${escapeHtml(dep)}</div>
-      <div class="journey-step-line"></div>
-      <div class="journey-step-copy">
-        <strong>${escapeHtml(summary)}</strong>
-        <span>${escapeHtml(sub)}${arr!=="—" ? ` · arrive ${escapeHtml(arr)}` : ""}</span>
-      </div>
-    </div>`;
-  }).join("");
-}
 
 async function resolveStopPoint(query){
   const url=`https://api.tfl.gov.uk/StopPoint/Search/${encodeURIComponent(query)}?maxResults=20&includeHubs=true`;
@@ -1040,7 +1253,7 @@ async function resolveStopPoint(query){
   };
 }
 
-async function fetchTfLJourney(from,to,finishDate){
+async function fetchTfLJourney(from,to,finishDate,modes){
   const [fromStop,toStop]=await Promise.all([
     resolveStopPoint(from),
     resolveStopPoint(to)
@@ -1060,6 +1273,10 @@ async function fetchTfLJourney(from,to,finishDate){
     calcOneDirection:"true",
     useRealTimeLiveArrivals:"true"
   });
+
+  if(Array.isArray(modes) && modes.length){
+    params.set("mode",modes.join(","));
+  }
 
   const response=await fetch(`${base}?${params.toString()}`,{
     headers:{"Accept":"application/json"}
@@ -1091,8 +1308,8 @@ async function fetchTfLJourney(from,to,finishDate){
   };
 }
 
-async function findLatestJourney(from,to,finishDate){
-  return await fetchTfLJourney(from,to,finishDate);
+async function findLatestJourney(from,to,finishDate,modes){
+  return await fetchTfLJourney(from,to,finishDate,modes);
 }
 
 async function prepQuestions(){
@@ -1272,13 +1489,24 @@ async function calculateWithTfL(){
   const finishString=getCurfewTime();
   const finishDate=eventFinishDate(finishString);
   const safety=8;
+  const transportKeys=selectedTransportKeys();
+  const modes=selectedTfLModes();
+  const transportLabels=selectedTransportLabels();
+
+  if(!modes.length){
+    $("needMore").style.display="block";
+    $("tflState").className="tfl-state error";
+    $("tflState").innerHTML="Choose at least one way you’re happy to get home.";
+    $("transportPrefs").open=true;
+    return;
+  }
 
   $("needMore").style.display="block";
   $("tflState").className="tfl-state loading";
   $("tflState").innerHTML=`Checking tonight’s event against the latest safe transport window…`;
 
   try{
-    const found=await findLatestJourney(from,home,finishDate);
+    const found=await findLatestJourney(from,home,finishDate,modes);
     const journey=found.journey;
     if(!journey) throw new Error("No viable journey returned");
 
@@ -1298,17 +1526,17 @@ async function calculateWithTfL(){
       statusClass="status good";statusText="SAFE";
       headline="YES — STAY TO THE END.";
       title="You can stay for the whole event.";
-      text=`Based on the expected finish, venue exit time, crowding and the final viable transport window, you have about ${safeBuffer} minutes of protected spare time.`;
+      text=`With ${transportLabels.join(", ")} allowed, the expected finish still leaves about ${safeBuffer} minutes of protected spare time after crowd exit and the safety margin.`;
     }else if(safeBuffer>=0){
       statusClass="status warn";statusText="CLOSE";
       headline=`Leave by ${formatDateTime(leaveByDate)}.`;
       title="You can stay almost to the end.";
-      text=`OutLate has checked the event finish against the final viable transport window. You only have about ${safeBuffer} minutes of protected spare time, so leave promptly at the time above.`;
+      text=`With ${transportLabels.join(", ")} allowed, you only have about ${safeBuffer} minutes of protected spare time. Leave promptly at the time above.`;
     }else{
       statusClass="status bad";statusText="LEAVE EARLY";
       headline=`Leave by ${formatDateTime(leaveByDate)}.`;
       title="You need to leave before the end.";
-      text=`The event is expected to run beyond your safe transport window. Leave about ${Math.abs(safeBuffer)} minutes before the expected finish to protect your journey home.`;
+      text=`With ${transportLabels.join(", ")} allowed, the event runs beyond your safe transport window. Leave about ${Math.abs(safeBuffer)} minutes before the expected finish.`;
     }
 
     $("status").className=statusClass;
@@ -1323,12 +1551,18 @@ async function calculateWithTfL(){
     $("verdictTimeLabel").textContent = safeBuffer>=15 ? "expected event finish" : "latest safe leave";
     $("recommendText").textContent=text;
 
+    const busAllowed=transportKeys.includes("bus");
+    $("modeImpact").innerHTML=busAllowed
+      ? `<strong>Night buses included.</strong> If rail or Tube stops earlier, buses are allowed to keep the night open.`
+      : `<strong>Night buses excluded.</strong> The verdict will not rely on a bus home.`;
+    $("dModes").textContent=transportLabels.join(" · ");
+
     $("dSize").textContent=p.label;
     $("dFinish").textContent=finishString;
     $("dExit").textContent=`${p.exit+p.crowd} min`;
     $("dWalk").textContent=`${p.walk} min`;
     $("dLast").textContent=formatDateTime(journey.startDateTime);
-    $("dConfidence").textContent=matchedEvent ? "High · event + TfL" : `${curfewConfidence} · TfL journey`;
+    $("dConfidence").textContent=matchedEvent ? "High · event + live transport" : `${curfewConfidence} · live transport`;
 
     $("tflState").className="tfl-state";
     $("tflState").innerHTML="";
@@ -1339,7 +1573,7 @@ async function calculateWithTfL(){
   }catch(err){
     $("result").style.display="none";
     $("tflState").className="tfl-state error";
-    $("tflState").innerHTML=`Couldn't get a TfL journey right now. <strong>${escapeHtml(err.message)}</strong><br>Try a more specific station name or check again shortly.`;
+    $("tflState").innerHTML=`Couldn't check tonight’s transport window. <strong>${escapeHtml(err.message)}</strong><br>Try a more specific home station or check again shortly.`;
     console.error(err);
   }
 }
@@ -1347,6 +1581,7 @@ async function calculateWithTfL(){
 $("continue").addEventListener("click",calculateWithTfL);
 
 loadHome();
+loadTransportPrefs();
 </script>
 </body>
 </html>
