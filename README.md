@@ -1,18 +1,25 @@
-# OutLate V6
+# OutLate V7 — TfL-powered GitHub beta
 
-## Main changes
-- New two-stop transit-line logo. The underline is exactly the width of OUTLATE.
-- Hero changed from "Can I stay?" to "Know when to leave."
-- Main action is "CHECK MY NIGHT".
-- Event or venue can be entered in one field (for example: "Superchunk at Moth Club").
-- Known venue names are detected even when included inside a longer event description.
-- Clearer suggested route: venue → venue-area station/transport → home station.
-- Curfew and last-departure fields are numeric-friendly masked time inputs; typing 2245 becomes 22:45.
-- Targeted web-search link is generated for the event/venue and today's date.
-- Architecture is ready for zero-click Ticketmaster Discovery API matching via `TICKETMASTER_API_KEY`.
-  When configured, it can match today's event and use a listed event end time when Ticketmaster supplies one.
+This version removes the two manual journey fields.
 
-## Important
-`TICKETMASTER_API_KEY` is blank by default. The website works without it using venue profiles, curfew fallbacks,
-and the targeted web-search link. Ticketmaster Discovery API coverage is useful but not universal, so official venue
-information and OutLate's fallback model remain necessary.
+## Flow
+Event/venue → Home station → OutLate checks TfL Journey Planner → leave-by answer.
+
+## Changes
+- Direct browser call to TfL Unified Journey Planner API.
+- No backend and no API key required for the anonymous beta tier.
+- Tries rail/Tube/Overground/DLR/tram first.
+- Falls back to broader TfL public transport if no rail-only journey is returned.
+- Displays the actual TfL journey legs used.
+- Calculates venue leave-by time backwards from the journey departure.
+- Keeps venue exit, crowd, walking and 8-minute safety assumptions.
+- Curfew/end-time control is split HH : MM so the colon is permanently visible.
+- Manual last-departure and journey-duration fields are gone.
+
+## Limitations
+- London/TfL-focused beta.
+- Unknown venues still need venue-size and end-time confirmation.
+- Event finish/curfew information is still partly estimated unless an event source supplies it.
+- TfL anonymous requests are rate-limited; a larger launch should use a registered key and likely a secure backend.
+
+Uses Transport for London Journey Planner data.
